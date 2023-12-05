@@ -101,11 +101,10 @@ int specialBrickY = 1 + random(10) ;
 }*/   
 
 //효과음 함수
-void playSoundEffect() {
-  int soundEffectFileNumber = 1; // 예시로 1번 파일 사용
-  //mp3.playFile(soundEffectFileNumber) ;
-  delay(1000);
-} 
+void PlaySoundEffect(const int se_number, bool is_loop){
+  mp3.playFromMP3Folder(se_number);
+}
+
 
 int ProcessInputButton1() {
   static unsigned long prev_btn_press_time = 0;
@@ -217,14 +216,14 @@ void moveBall() {
     matrix.drawPixel(ballX+ballSpeedX, ballY, matrix.Color333(0, 0, 0));
     }
     ballSpeedX = -ballSpeedX ;
-    playSoundEffect();
+    PlaySoundEffect(4,true);
   }
   if (bricks[ballX][ballY+ballSpeedY]) {
     if( ballX != 1 && ballX != 62 && ballY != 1) {
     matrix.drawPixel(ballX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));
     }    
     ballSpeedY = -ballSpeedY ;
-    playSoundEffect();
+    PlaySoundEffect(4,true);
   }
   else if (bricks[ballX+ballSpeedX][ballY] == false && bricks[ballX+ballSpeedX][ballY+ballSpeedY]) {
     if( ballX != 1 && ballX != 62 && ballY != 1) {
@@ -232,7 +231,7 @@ void moveBall() {
     }
     ballSpeedY = -ballSpeedY ;
     ballSpeedX = -ballSpeedX ;
-    playSoundEffect();
+    PlaySoundEffect(4,true);
   }
   if ( ballY + 1 == paddleY ) {
     if ( paddleX - 1 < ballX && ballX < paddleX + 4) {
