@@ -1,44 +1,8 @@
-#include <Adafruit_GFX.h>
-#include <gfxfont.h>
-#include <RGBmatrixPanel.h>
-#include <DFPlayerMini_Fast.h>
-#include <SoftwareSerial.h>
-
-//배선 관련
-#define CLK 11 
-#define OE   9
-#define LAT 10
-#define A   A0
-#define B   A1
-#define C   A2
-#define D   A3
-#define MEGA_TX 14
-#define MEGA_RX 15
-#define BTN_SRC_1 A4
-#define HIGH 1
-#define LOW 0
-#define BAUD_RATE 9600
-
-//매트릭스 관련
-#define MAT_R 32 
-#define MAT_C 64
-#define EDGE 3
-#define DELAY_TIME 50
-#define COLOR_COUNT 7
-
-#define BALL_DELAY 200
-#define PADDLE_DELAY 50
-
-//음악 관련
-#define SONG_COUNT 8
-#define MUSIC_INTERVAL 6000
-
 //함수 목록
 void InitializeGame();
 void DrawEdge();
 void DrawBricks();
 void DrawPaddle();
-void PlayBackGroundMusicMP3();
 void DrawBall();
 void MovePaddle() ; 
 void DrawPaddle();
@@ -46,7 +10,7 @@ void DrawBricks();
 void GameOver();
 void Minigame();
 void StartBreak();
-
+void ScoreCount();
 SoftwareSerial mega_serial(MEGA_TX, MEGA_RX); 
 
 enum button_types {
@@ -85,64 +49,14 @@ int paddleY = 31;
 int paddleSpeedX = -1;
 
 //점수 상태
-int score = 0;
+int Breakscore = 0;
 
 //게임 상태
-bool game = true ;
+bool Breakgame = true ;
 
 // 랜덤으로 특별한 벽돌 선택
 int specialBrickX = 1 + random(62) ;
 int specialBrickY = 1 + random(10) ;
-
-//시드 값을 초기화해서 랜덤함수 값 바꾸는 코드 게임 재시작시 필요
-/*void setup() {
-  srand(time(0));
-}*/   
-
-//효과음 함수
-void PlaySoundEffect(const int se_number, bool is_loop){
-  mp3.playFromMP3Folder(se_number);
-}
-
-
-int ProcessInputButton1() {
-  static unsigned long prev_btn_press_time = 0;
-  static unsigned long cur_btn_press_time = 0;
-  int cur_btn_type = NONE;
-  int voltage;
-
-  // 현재 버튼 값 읽기
-  voltage = analogRead(BTN_SRC_1);
-  cur_btn_press_time = millis();
-
-  if (voltage >= 100 && voltage <= 200) {
-    cur_btn_type = UP;
-  } 
-  else if (voltage <= 50) {
-    cur_btn_type = LEFT;
-  } 
-  else if (voltage >= 450 && voltage <= 550) {
-    cur_btn_type = RIGHT;
-  } 
-  else if (voltage >= 300 && voltage <= 400) {
-    cur_btn_type = DOWN;
-  } 
-  else if (voltage >= 700 && voltage <= 800) {
-    cur_btn_type = SELECT;
-  } 
-  else {
-    cur_btn_type = NONE;
-  }
-
-  if(cur_btn_press_time-prev_btn_press_time < DELAY_TIME){
-    return NONE;
-  }
-  prev_btn_press_time = cur_btn_press_time;
-  //Serial.print("Button1 Pressed: ");
-  //Serial.println(button_names[cur_btn_type]);
-  return cur_btn_type;
-}
-
 
 // 초기화 함수
 void InitializeGame() {
@@ -167,10 +81,6 @@ for (int i = 0; i < width; i++) {
   bricks[i][0] = false ;
   bricks[i][1] = false ;
 }
-}
-
-//음악 실행 함수
-void PlayBackGroundMusicMP3(const int bgm_number) {
 }
 // 공을 움직이는 함수
 void MoveBall() {
@@ -292,7 +202,7 @@ void ScoreCount() {
   for (int i = 1; i < width - 1; i++) {
     for (int j = 1; j < height - 19; j++) {
       if (bricks[i][j] == false) {
-        score++;
+        Breakscore++;
       }
     }
   }
@@ -333,10 +243,10 @@ void StartBreak() {
   paddleSpeedX = -1;
 
   //점수 상태
-  score = 0;
+  Breakscore = 0;
 
   //게임 상태
-  game = true ;
+  Breakgame = true ;
   InitializeGame();
   DrawEdge();
   DrawBricks();
@@ -362,7 +272,7 @@ void StartBreak() {
       DrawPaddle(); 
       prev_paddle_move = cur_paddle_move;
     }
-    if (!game) {
+    if (!Breakgame) {
       GameOver();
       matrix.fillScreen(0);
       break ;
