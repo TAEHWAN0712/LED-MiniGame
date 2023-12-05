@@ -189,7 +189,7 @@ void moveBall() {
   Serial.print(ballY);
   Serial.println();
 
-  is_paddle = (ballY + 1 == paddleY) && (ballX >= paddleX && ballX <= paddleX + 3);
+  is_paddle = (ballY + 1 == paddleY) && (ballX >= paddleX-1 && ballX <= paddleX + 2);
   is_floor = (ballY >= height - EDGE);
   is_ceil = (ballY <= EDGE);
   is_side = (ballX <= EDGE) || (ballX >= width - EDGE - 1);
