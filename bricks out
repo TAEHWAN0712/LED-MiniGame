@@ -34,18 +34,18 @@
 #define MUSIC_INTERVAL 6000
 
 //함수 목록
-void initializeGame();
-void drawEdge();
-void drawBricks();
-void drawPaddle();
+void InitializeGame();
+void DrawEdge();
+void DrawBricks();
+void DrawPaddle();
 void PlayBackGroundMusicMP3();
-void drawBall();
-void movePaddle() ; 
-void drawPaddle();
-void drawBricks();
-void gameOver();
-void minigame();
-void startBreak();
+void DrawBall();
+void MovePaddle() ; 
+void DrawPaddle();
+void DrawBricks();
+void GameOver();
+void Minigame();
+void StartBreak();
 
 SoftwareSerial mega_serial(MEGA_TX, MEGA_RX); 
 
@@ -146,7 +146,7 @@ int ProcessInputButton1() {
 
 
 // 초기화 함수
-void initializeGame() {
+void InitializeGame() {
   // 벽돌 초기화
   for (int i = 1; i < width - 1; i++) {
     for (int j = 1; j < height - 19; j++) {
@@ -171,7 +171,7 @@ for (int i = 0; i < width; i++) {
 void PlayBackGroundMusicMP3(const int bgm_number) {
 }
 // 공을 움직이는 함수
-void moveBall() {
+void MoveBall() {
   // 현재 위치에서 공을 지웁니다.
   bool is_paddle;
   bool is_side;
@@ -241,7 +241,7 @@ void moveBall() {
 
 
 // 벽돌 그리기 함수
-void drawBricks() {
+void DrawBricks() {
   for (int i=1;i<13;i++) {
     matrix.drawLine(1,i,62,i,matrix.Color333(0,0,7));
 }
@@ -252,16 +252,16 @@ void drawBricks() {
 
 
 //공 그리는 함수 
-void drawBall() { 
+void DrawBall() { 
   matrix.drawPixel(ballX, ballY, matrix.Color333(7, 7, 7));
 }
 
 //패들 그리는 함수
-void drawPaddle() {
+void DrawPaddle() {
     matrix.drawLine(paddleX-1, paddleY, paddleX+2, paddleY,  matrix.Color333(2, 7, 7));
 }
 //패들 움직이는 함수
-void movePaddle() {
+void MovePaddle() {
   int btn = ProcessInputButton1();
   if ( paddleX != EDGE && btn == LEFT) {
     Serial.println("left");
@@ -278,7 +278,7 @@ void movePaddle() {
 
 
 //모서리 벽 그리기 함수
-void drawEdge() {
+void DrawEdge() {
   matrix.drawLine(0,0,0,31,matrix.Color333(0,0,7));
   matrix.drawLine(1,0,62,0,matrix.Color333(0,0,7));
   matrix.drawLine(63,0,63,31,matrix.Color333(0,0,7));
@@ -296,7 +296,7 @@ void ScoreCount() {
 }
 
 //게임오버 출력 함수
-void gameOver() {
+void GameOver() {
   matrix.fillScreen(0); 
   matrix.setCursor(5, 32/ 2 - 4); 
   matrix.print("GAME OVER");
@@ -304,12 +304,12 @@ void gameOver() {
 }
 
 //미니게임 함수
-void minigame() {
+void Minigame() {
   matrix.fillScreen(0);
 }
 
 //벽돌깨기 게임 실행
-void startBreak() {
+void StartBreak() {
   unsigned int prev_ball_move = 0;
   unsigned int cur_ball_move = 0;
   unsigned int prev_paddle_move = 0;
@@ -334,33 +334,33 @@ void startBreak() {
 
   //게임 상태
   game = true ;
-  initializeGame();
-  drawEdge();
-  drawBricks();
+  InitializeGame();
+  DrawEdge();
+  DrawBricks();
 //PlayBackGroundMusicMP3(); 음악 정해서 ()안에 넣기
-  drawBall();
-  drawPaddle();
-  drawbricks();
+  DrawBall();
+  DrawPaddle();
+  Drawbricks();
 //텍스트 세팅
   matrix.setTextSize(1);
   matrix.setTextColor(matrix.Color333(7, 7, 7));
   while (true) {
     cur_ball_move = millis();
     if(cur_ball_move - prev_ball_move >= BALL_DELAY){
-      moveBall();
-      drawBall();
+      MoveBall();
+      DrawBall();
       prev_ball_move = cur_ball_move;
     }
     cur_paddle_move = millis();
     if(cur_paddle_move - prev_paddle_move >= PADDLE_DELAY){
       Serial.print("paddle : ");
       Serial.println(paddleX);
-      movePaddle();
-      drawPaddle(); 
+      MovePaddle();
+      DrawPaddle(); 
       prev_paddle_move = cur_paddle_move;
     }
     if (!game) {
-      gameOver();
+      GameOver();
       matrix.fillScreen(0);
       break ;
     }
@@ -382,5 +382,5 @@ void setup() {
 
 // 메인 루프 함수
 void loop() {
-   startBreak() ;
+   StartBreak() ;
 }
