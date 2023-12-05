@@ -1,16 +1,17 @@
 //함수 목록
 void InitializeGame();
-void DrawEdge();
+void MoveBall();
 void DrawBricks();
+void DrawBall();
 void DrawPaddle();
 void DrawBall();
-void MovePaddle() ; 
 void DrawPaddle();
-void DrawBricks();
+void MovePaddle() ;
+void DrawEdge();
+void ScoreCount();
 void GameOver();
 void Minigame();
 void StartBreak();
-void ScoreCount();
 SoftwareSerial mega_serial(MEGA_TX, MEGA_RX); 
 
 enum button_types {
@@ -188,7 +189,7 @@ void MovePaddle() {
  }
 
 //모서리 벽 그리기 함수
-void drawEdge() {
+void DrawEdge() {
   matrix.drawLine(0,0,0,31,matrix.Color333(0,0,7));
   matrix.drawLine(1,0,62,0,matrix.Color333(0,0,7));
   matrix.drawLine(63,0,63,31,matrix.Color333(0,0,7));
