@@ -235,11 +235,9 @@ void moveBall() {
 
 // 벽돌 그리기 함수
 void drawBricks() {
-  for (int i = 1; i < width - 1 ; i++) {
-    for (int j = 1; j < height - 19 ; j++) {
-      matrix.drawPixel(i, j, bricks[i][j] ? matrix.Color333(0, 7, 0) : matrix.Color333(0, 0, 0)); // 벽돌 색상 설정
-    }
-  }
+  for (int i=1;i<13;i++) {
+    matrix.drawLine(i,0,62,0,matrix.Color333(0,0,7));
+ }
   if (bricks[specialBrickX][specialBrickY]) {
     matrix.drawPixel(specialBrickX, specialBrickY, matrix.Color333(3, 5, 3)); //특별한 벽돌 색상변경
   }
