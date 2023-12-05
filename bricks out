@@ -90,12 +90,6 @@ bool game = true ;
 int specialBrickX = 1 + random(62) ;
 int specialBrickY = 1 + random(10) ;
 
-
-//시드 값을 초기화해서 랜덤함수 값 바꾸는 코드 게임 재시작시 필요
-/*void setup() {
-  srand(time(0));
-}*/   
-
 //효과음 함수
 void playSoundEffect() {
   int soundEffectFileNumber = 1; // 예시로 1번 파일 사용
