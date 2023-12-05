@@ -313,10 +313,10 @@ initializeGame();
 //텍스트 세팅
   matrix.setTextSize(1);
   matrix.setTextColor(matrix.Color333(7, 7, 7));
-while (true) {
- movePaddle() ; 
+while (true) { 
  moveBall();
  delay(1000); // 공의 이동 속도 조절
+ movePaddle() ;
  drawBricks();
  if (!game) {
   gameOver();
