@@ -211,25 +211,32 @@ void moveBall() {
     ballSpeedY = -ballSpeedY;
   }
 
-  // 벽돌과의 충돌 검사
-  int nextX = ballX + ballSpeedX;
-  int nextY = ballY + ballSpeedY;
-
-  if (bricks[nextX][ballY]) {
-    bricks[nextX][ballY] = false;
-    ballSpeedX = -ballSpeedX;
+// 벽돌과의 충돌 검사
+  if (bricks[ballX+ballSpeedX][ballY]) {
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
+    matrix.drawPixel(ballX+ballSpeedX, ballY, matrix.Color333(0, 0, 0));
+    }
+    ballSpeedX = -ballSpeedX ;
     playSoundEffect();
   }
-  if (bricks[ballX][nextY]) {
-    bricks[ballX][nextY] = false;
-    ballSpeedY = -ballSpeedY;
+  if (bricks[ballX][ballY+ballSpeedY]) {
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
+    matrix.drawPixel(ballX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));
+    }    
+    ballSpeedY = -ballSpeedY ;
     playSoundEffect();
-  } 
-  else if (bricks[nextX][nextY]) {
-    bricks[nextX][nextY] = false;
-    ballSpeedY = -ballSpeedY;
-    ballSpeedX = -ballSpeedX;
+  }
+  else if (bricks[ballX+ballSpeedX][ballY] == false && bricks[ballX+ballSpeedX][ballY+ballSpeedY]) {
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
+    matrix.drawPixel(ballX+ballSpeedX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));
+    }
+    ballSpeedY = -ballSpeedY ;
+    ballSpeedX = -ballSpeedX ;
     playSoundEffect();
+  }
+  if ( ballY + 1 == paddleY ) {
+    if ( paddleX - 1 < ballX && ballX < paddleX + 4) {
+    ballSpeedY = -ballSpeedY ;
   }
 }
 
