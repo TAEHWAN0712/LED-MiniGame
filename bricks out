@@ -26,6 +26,9 @@
 #define DELAY_TIME 50
 #define COLOR_COUNT 7
 
+#define BALL_DELAY 200
+#define PADDLE_DELAY 50
+
 //음악 관련
 #define SONG_COUNT 8
 #define MUSIC_INTERVAL 6000
@@ -64,7 +67,8 @@ const int height = 32;
 
 // 벽돌 상태
 bool bricks[width][height];
-
+int breaked_bricks[3] = {0,0,0};
+int break_count = 0;
 // 공의 현재 위치
 int ballX = 32;
 int ballY = 24;
@@ -89,6 +93,12 @@ bool game = true ;
 // 랜덤으로 특별한 벽돌 선택
 int specialBrickX = 1 + random(62) ;
 int specialBrickY = 1 + random(10) ;
+
+
+//시드 값을 초기화해서 랜덤함수 값 바꾸는 코드 게임 재시작시 필요
+/*void setup() {
+  srand(time(0));
+}*/   
 
 //효과음 함수
 void playSoundEffect() {
@@ -164,37 +174,62 @@ void PlayBackGroundMusicMP3(const int bgm_number) {
 // 공을 움직이는 함수
 void moveBall() {
   // 현재 위치에서 공을 지웁니다.
+  bool is_paddle;
+  bool is_side;
+  bool is_ceil;
+  bool is_floor;
   matrix.drawPixel(ballX, ballY, matrix.Color333(0, 0, 0));
 
   // 새로운 위치로 공을 이동합니다.
   ballX += ballSpeedX;
   ballY += ballSpeedY;
+  Serial.print("ball : ");
+  Serial.print(ballX);
+  Serial.print(",");
+  Serial.print(ballY);
+  Serial.println();
 
+  is_paddle = (ballY + 1 == paddleY) && (ballX >= paddleX && ballX <= paddleX + 3);
+  is_floor = (ballY >= height - EDGE);
+  is_ceil = (ballY <= EDGE);
+  is_side = (ballX <= EDGE) || (ballX >= width - EDGE - 1);
+
+  if (is_floor) {
+    game = false;
+    return;
+  }
+  if (is_paddle) {
+    ballSpeedY = -ballSpeedY;
+    ballSpeedX = -ballSpeedX;
+    return;
+  }
   // 벽에 부딪혔다면 방향을 변경합니다.
-  if (ballX == 1 || ballX == width - 2) {
+  if (is_side) {
     ballSpeedX = -ballSpeedX;
   }
-  if (ballY == 1) { 
+  if (is_ceil) {
     ballSpeedY = -ballSpeedY;
   }
 
-  if (ballY == height -1) {
-    game = false ;
-  }
-
- // 벽돌과의 충돌 검사
+// 벽돌과의 충돌 검사
   if (bricks[ballX+ballSpeedX][ballY]) {
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
     matrix.drawPixel(ballX+ballSpeedX, ballY, matrix.Color333(0, 0, 0));
+    }
     ballSpeedX = -ballSpeedX ;
     playSoundEffect();
   }
   if (bricks[ballX][ballY+ballSpeedY]) {
-    matrix.drawPixel(ballX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));    
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
+    matrix.drawPixel(ballX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));
+    }    
     ballSpeedY = -ballSpeedY ;
     playSoundEffect();
   }
   else if (bricks[ballX+ballSpeedX][ballY] == false && bricks[ballX+ballSpeedX][ballY+ballSpeedY]) {
+    if( ballX != 1 && ballX != 62 && ballY != 1) {
     matrix.drawPixel(ballX+ballSpeedX, ballY+ballSpeedY, matrix.Color333(0, 0, 0));
+    }
     ballSpeedY = -ballSpeedY ;
     ballSpeedX = -ballSpeedX ;
     playSoundEffect();
@@ -205,15 +240,12 @@ void moveBall() {
   }
 }
 
-  // 새로운 위치에 공을 그립니다.
-  matrix.drawPixel(ballX, ballY, matrix.Color333(7, 7, 7));
-}
 
 // 벽돌 그리기 함수
 void drawBricks() {
   for (int i=1;i<13;i++)
-    matrix.drawLine(i,0,62,0,matrix.Color333(0,0,7));  
-if (bricks[specialBrickX][specialBrickY]) {
+    matrix.drawLine(i,0,62,0,matrix.Color333(0,0,7));
+  if (bricks[specialBrickX][specialBrickY]) {
     matrix.drawPixel(specialBrickX, specialBrickY, matrix.Color333(3, 5, 3)); //특별한 벽돌 색상변경
   }
 }
@@ -226,31 +258,20 @@ void drawBall() {
 
 //패들 그리는 함수
 void drawPaddle() {
-for (int i=0;i<4;i++){
-  matrix.drawPixel(paddleX-1+i, paddleY, matrix.Color333(2, 7, 7)) ;
-}
+    matrix.drawLine(paddleX-1, paddleY, paddleX+2, paddleY,  matrix.Color333(2, 7, 7));
 }
 //패들 움직이는 함수
 void movePaddle() {
-  if ( paddleX != 1 && ProcessInputButton1() == LEFT) {
-    for (int i=0;i<4;i++){
-      matrix.drawPixel(paddleX-1+i, paddleY, matrix.Color333(0, 0, 0)) ;
-}
-   paddleX+=paddleSpeedX;
-
-    for (int i=0;i<4;i++){
-      matrix.drawPixel(paddleX-1+i, paddleY, matrix.Color333(2, 7, 7)) ;
-}  
-}
-  else if ( paddleX != 60 && ProcessInputButton1() == RIGHT) {
-    for (int i=0;i<4;i++){
-      matrix.drawPixel(paddleX-1+i, paddleY, matrix.Color333(0, 0, 0)) ;
-}
-   paddleX+=-paddleSpeedX;
-
-    for (int i=0;i<4;i++){
-      matrix.drawPixel(paddleX-1+i, paddleY, matrix.Color333(2, 7, 7)) ;
-}
+  int btn = ProcessInputButton1();
+  if ( paddleX != EDGE && btn == LEFT) {
+    Serial.println("left");
+    matrix.drawLine(paddleX-1, paddleY, paddleX+2, paddleY,  matrix.Color333(0, 0, 0));
+    paddleX+=paddleSpeedX;
+  }
+  else if ( paddleX != MAT_C-EDGE-1 && btn == RIGHT) {
+    Serial.println("right");
+    matrix.drawLine(paddleX-1, paddleY, paddleX+2, paddleY,  matrix.Color333(0, 0, 0));
+    paddleX-=paddleSpeedX;
   }
  }
 
@@ -258,10 +279,9 @@ void movePaddle() {
 
 //모서리 벽 그리기 함수
 void drawEdge() {
-matrix.drawLine(0,0,0,31,matrix.Color333(0,0,7));
-matrix.drawLine(1,0,62,0,matrix.Color333(0,0,7));
-matrix.drawLine(63,0,63,31,matrix.Color333(0,0,7));
-
+  matrix.drawLine(0,0,0,31,matrix.Color333(0,0,7));
+  matrix.drawLine(1,0,62,0,matrix.Color333(0,0,7));
+  matrix.drawLine(63,0,63,31,matrix.Color333(0,0,7));
 }
 
 //점수 계산 함수
@@ -290,7 +310,31 @@ void minigame() {
 
 //벽돌깨기 게임 실행
 void startBreak() {
-initializeGame();
+  unsigned int prev_ball_move = 0;
+  unsigned int cur_ball_move = 0;
+  unsigned int prev_paddle_move = 0;
+  unsigned int cur_paddle_move = 0;
+
+  ballX = 32;
+  ballY = 24;
+
+  // 공의 이동 방향
+  ballSpeedX = 1;
+  ballSpeedY = 1;
+
+  //패들의 현재 위치
+  paddleX = 32;
+  paddleY = 31;
+
+  //패들의 이동방향
+  paddleSpeedX = -1;
+
+  //점수 상태
+  score = 0;
+
+  //게임 상태
+  game = true ;
+  initializeGame();
   drawEdge();
   drawBricks();
 //PlayBackGroundMusicMP3(); 음악 정해서 ()안에 넣기
@@ -299,16 +343,28 @@ initializeGame();
 //텍스트 세팅
   matrix.setTextSize(1);
   matrix.setTextColor(matrix.Color333(7, 7, 7));
-while (true) { 
- moveBall();
- delay(1000); // 공의 이동 속도 조절
- movePaddle() ;
- drawBricks();
- if (!game) {
-  gameOver();
-  break ;
- }
-}
+  while (true) {
+    cur_ball_move = millis();
+    if(cur_ball_move - prev_ball_move >= BALL_DELAY){
+      moveBall();
+      drawBall();
+      prev_ball_move = cur_ball_move;
+    }
+    cur_paddle_move = millis();
+    if(cur_paddle_move - prev_paddle_move >= PADDLE_DELAY){
+      Serial.print("paddle : ");
+      Serial.println(paddleX);
+      movePaddle();
+      drawPaddle(); 
+      prev_paddle_move = cur_paddle_move;
+    }
+    drawBricks();
+    if (!game) {
+      gameOver();
+      matrix.fillScreen(0);
+      break ;
+    }
+  }
 }
   
 
@@ -321,10 +377,10 @@ void setup() {
   matrix.begin(); // RGB 매트릭스 초기화
   matrix.setTextSize(1);
   matrix.setTextColor(matrix.Color333(7, 7, 7)); 
- startBreak() ;
+
 }
 
 // 메인 루프 함수
 void loop() {
-
+   startBreak() ;
 }
